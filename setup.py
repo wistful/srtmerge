@@ -16,12 +16,13 @@ except:
     pass
 
 setup(name='srtmerge',
-      version='0.0.2',
+      version='0.1',
       author='wistful',
-      author_email='wistful@tut.by',
+      author_email='wst.public.mail@gmail.com',
       packages=find_packages(),
       description = "srtmerge (.srt) used to merge two Srt files",
       long_description = README,
+      url="https://github.com/wistful/srtmerge",
       license = "LGPL",
       platforms = ["Unix,"],
       keywords = "srtmerge srt",

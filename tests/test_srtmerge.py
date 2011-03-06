@@ -20,9 +20,9 @@ __author__ = 'wistful'
 
 
 import tempfile
-import srt
+from srtmerge import srt
 import unittest
-from srtmerge import srtmerge
+from srtmerge.srtmerge import srtmerge
 
 RES_TIME = [("00:04:03,638 --> 00:04:06,439", (243638, 246439)),
             ("00:04:08,442 --> 00:04:09,506", (248442, 249506)),

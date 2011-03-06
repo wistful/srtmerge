@@ -37,9 +37,9 @@ def _parse_text(text):
 
 
 def srtmerge(in_srt1, in_srt2, out_srt, diff=0):
-    subs = [(start + diff, finish + diff, 1, text) \
+    subs = [(start + diff, finish + diff, 1, text)
             for (start, finish), text in subreader(in_srt1)]
-    subs.extend([(start, finish, 2, text) \
+    subs.extend([(start, finish, 2, text) 
                  for (start, finish), text in subreader(in_srt2)])
     subs.sort()
     i = 0
@@ -90,6 +90,13 @@ def _check_argv(params):
     return True
 
 if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='Some description')
+    parser.add_argument('inPaths', type=str, nargs='+',
+                        help='srt-file that must be merged')
+    parser.add_argument('outPath', type=str,
+                        help='path to output file')
+    parser.print_help()
     if _check_argv(sys.argv[1:]):
         if len(sys.argv) == 4:
             sys.argv.append(0)
