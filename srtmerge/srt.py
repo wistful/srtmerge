@@ -27,7 +27,8 @@ def parse_time(str_time):
     """
     pattern_time = r"(\d+):(\d+):(\d+),(\d+)\D*-->\D*(\d+):(\d+):(\d+),(\d+)$"
     groups = re.match(pattern_time, str_time.strip()).groups()
-    start = finish = None
+    start = None
+    finish = None
     if len(groups) == 8:
         start = (int(groups[2]) + int(groups[1])*60 + int(groups[0])*60*60)*1000 + int(groups[3])
         finish = (int(groups[6]) + int(groups[5])*60 + int(groups[4])*60*60)*1000 + int(groups[7])
@@ -53,21 +54,21 @@ def parse_ms(start, finish):
     return "%s --> %s" % (ms2time(start), ms2time(finish))
 
 
-def subreader(filepath):
+def subreader(file_path):
     """
     return [((time_start, time_finish), subtitle_text), ...]
-    filepath: full path to srt-file
+    file_path: full path to srt-file
     """
     pattern_index = r"^\d+$"
-    fd = open(filepath, 'r')
     index, times, text = [], [], ['']
-    for line in fd:
+    for line in open(file_path, 'r'):
         if re.match(pattern_index, line.strip()):
             index.append(line.strip())
         elif '-->' in line:
             start, finish = parse_time(line)
             times.append((start, finish))
-            len(index) > 1 and text.append('')
+            if len(index) > 1:
+                text.append('')
         elif line.strip():
             text[-1] += line.strip() + '\n'
     return zip(times, text)

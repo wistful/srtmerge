@@ -23,9 +23,9 @@ import sys
 
 
 def _parse_text(text):
-    '''
+    """
     ordering text
-    '''
+    """
     result1 = ''
     result2 = ''
     for flag, item in text:

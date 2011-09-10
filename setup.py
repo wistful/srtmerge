@@ -16,7 +16,7 @@ except:
     pass
 
 setup(name='srtmerge',
-      version='0.1',
+      version='0.1.1',
       author='wistful',
       author_email='wst.public.mail@gmail.com',
       packages=find_packages(),
