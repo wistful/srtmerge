@@ -22,46 +22,27 @@ from srt import subreader, subwriter
 import sys
 
 
-def _parse_text(text):
-    """
-    ordering text
-    """
-    result1 = ''
-    result2 = ''
-    for flag, item in text:
-        if flag == 1:
-            result1 += item
-        if flag == 2:
-            result2 += item
-    return result1 + result2
-
-
 def srtmerge(in_srt1, in_srt2, out_srt, diff=0):
     subs = [(start + diff, finish + diff, 1, text)
             for (start, finish), text in subreader(in_srt1)]
-    subs.extend([(start, finish, 2, text) 
+    subs.extend([(start, finish, 2, text)
                  for (start, finish), text in subreader(in_srt2)])
     subs.sort()
-    i = 0
-    result = []
-    while i < len(subs):
-        start1, finish1, flag1, text1 = subs[i]
-        j = i + 1
-        start = start1
-        finish = finish1
-        text = [(flag1, text1)]
-        while True:
-            if j >= len(subs):
-                break
-            start2, finish2, flag2, text2 = subs[j]
+    result = list()
+    index = 0
+    while index < len(subs) - 1:
+        start, finish, flag, sub_text = subs[index]
+        text = [(flag, sub_text)]
+        for i in xrange(index + 1, len(subs)):
+            sub_rec = subs[i]
+            start2, finish2, flag2, sub_text2 = sub_rec
             if start2 < finish:
-                text.append((flag2, text2))
-                finish = max(finish1, start + (finish2 - start2) * 2 / 3)
-                j += 1
+                finish = max(finish, start + (finish2 - start2) * 2 / 3)
+                text.append((flag2, sub_text2))
             else:
                 break
-        result.append(((start, finish), _parse_text(text)))
-        i = j
+        index = i
+        result.append(((start, finish), "".join([record[1][1] for record in sorted(enumerate(text), key=lambda (index, item): (item[0], index))])))
 
     subwriter(out_srt, result)
 

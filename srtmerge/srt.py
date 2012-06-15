@@ -21,23 +21,37 @@ __author__ = 'wistful'
 import re
 
 
+class SrtFormatError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return repr(self.message)
+
+
 def parse_time(str_time):
     """
-    srt time-string format -> (int: start, int: finish)
+    convert string format of start-finish to integer(ms) format
+    >>> parse_time("00:14:33,460 --> 00:14:35,419")
+    (873460, 875419)
     """
-    pattern_time = r"(\d+):(\d+):(\d+),(\d+)\D*-->\D*(\d+):(\d+):(\d+),(\d+)$"
-    groups = re.match(pattern_time, str_time.strip()).groups()
-    start = None
-    finish = None
-    if len(groups) == 8:
-        start = (int(groups[2]) + int(groups[1])*60 + int(groups[0])*60*60)*1000 + int(groups[3])
-        finish = (int(groups[6]) + int(groups[5])*60 + int(groups[4])*60*60)*1000 + int(groups[7])
-    return start, finish
+    pattern_time = r"(?P<h1>\d+):(?P<m1>\d+):(?P<s1>\d+),(?P<ms1>\d+)\W*-->\W*(?P<h2>\d+):(?P<m2>\d+):(?P<s2>\d+),(?P<ms2>\d+)$"
+    try:
+        d = re.match(pattern_time, str_time.strip()).groupdict()
+    except:
+        message = u"Invalid string format '%s' , expect hh:mm:ss,msc --> hh:mm:ss,msc" % str_time
+        raise SrtFormatError(message)
+    get_ms = lambda h, m, s, ms: (int(s) + int(m) * 60 + int(h) * 60 * 60) * 1000 + int(ms)
+    return get_ms(d['h1'], d['m1'], d['s1'], d['ms1']), get_ms(d['h2'], d['m2'], d['s2'], d['ms2'])
 
 
 def ms2time(ms):
     """
-    int: ms -> str: srt time-format
+    convert msc to string format
+    >>> ms2time(233243)
+    '00:03:53,243'
+    >>> ms2time(442)
+    '00:00:00,442'
     """
     it = int(ms / 1000)
     ms = ms - it*1000
@@ -49,7 +63,9 @@ def ms2time(ms):
 
 def parse_ms(start, finish):
     """
-    int: start, int: finish -> str: srt time-format
+    convert msc representation to string format
+    >>> parse_ms(442, 233243)
+    '00:00:00,442 --> 00:03:53,243'
     """
     return "%s --> %s" % (ms2time(start), ms2time(finish))
 
@@ -60,18 +76,20 @@ def subreader(file_path):
     file_path: full path to srt-file
     """
     pattern_index = r"^\d+$"
-    index, times, text = [], [], ['']
+    records, times, text = list(), None, list()
     for line in open(file_path, 'r'):
-        if re.match(pattern_index, line.strip()):
-            index.append(line.strip())
+        line = line.strip()
+        if re.match(pattern_index, line):
+            if times:
+                records.append((times, '\n'.join(text) + '\n'))
+                times, text = None, list()
         elif '-->' in line:
-            start, finish = parse_time(line)
-            times.append((start, finish))
-            if len(index) > 1:
-                text.append('')
-        elif line.strip():
-            text[-1] += line.strip() + '\n'
-    return zip(times, text)
+            times = parse_time(line)
+        elif line:
+            text.append(line)
+    if times:
+        records.append((times, '\n'.join(text) + '\n'))
+    return records
 
 
 def subwriter(filepath, subtitles):
@@ -81,12 +99,8 @@ def subwriter(filepath, subtitles):
 
     write subtitles structure to srt-file
     """
-    fd = open(filepath, 'w')
-    index = 1
-    for (start, finish), text in subtitles:
-        fd.writelines([str(index), '\n', parse_ms(start, finish), '\n', text, '\n'])
-        index += 1
-
+    open(filepath, 'w').writelines(["%s\n%s\n%s\n" % (str(index), parse_ms(start, finish), text) for index, ((start, finish), text) in enumerate(subtitles, 1)])
 
 if __name__ == '__main__':
-    pass
+    import doctest
+    print doctest.testmod()

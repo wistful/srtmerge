@@ -18,6 +18,9 @@
 
 __author__ = 'wistful'
 
+import sys
+sys.path.append("..")
+
 
 import tempfile
 from srtmerge import srt
@@ -30,6 +33,8 @@ RES_TIME = [("00:04:03,638 --> 00:04:06,439", (243638, 246439)),
             ("01:00:08,442 --> 01:00:19,985", (3608442, 3619985)),
             ("03:37:00,879 --> 03:58:29,312", (13020879, 14309312)),
            ]
+
+INVALID_TIME = ["00:14:33 --> 00:14:35,419", "invalid string --> correct string"]
 
 SUBTITLES = """1
 00:03:49,824 --> 00:03:53,243
@@ -272,6 +277,13 @@ class SrtText(unittest.TestCase):
     def test_parse_time(self):
         for str_time, times in RES_TIME:
             self.assertEqual(srt.parse_time(str_time), times)
+        for inv_time in INVALID_TIME:
+            self.assertRaises(srt.SrtFormatError, srt.parse_time, (inv_time,))
+
+    def test_ms2time(self):
+        self.assertEqual(srt.ms2time(233243), '00:03:53,243')
+        self.assertEqual(srt.ms2time(248442), '00:04:08,442')
+        self.assertEqual(srt.ms2time(442), '00:00:00,442')
 
     def test_parse_ms(self):
         for str_time, times in RES_TIME:
