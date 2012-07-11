@@ -1,0 +1,19 @@
+#!/bin/bash
+
+PACKAGE_VERSION=`grep  Version:  package/DEBIAN/control | tr -d "[:alpha:]" | tr -d "[:blank:]" | tr -d "[=:=]"`
+PACKAGE_NAME=srtmerge-$PACKAGE_VERSION
+rm -rf srtmerge-*
+
+cp srtmerge package/usr/lib -R -f
+rm package/usr/lib/srtmerge/__init__.py
+cp package $PACKAGE_NAME -R
+
+chmod 0755 $PACKAGE_NAME/DEBIAN -R
+chmod 0755 $PACKAGE_NAME/usr -R
+
+chgrp root $PACKAGE_NAME/DEBIAN -R
+chgrp root $PACKAGE_NAME/usr -R
+
+dpkg --build $PACKAGE_NAME "$PACKAGE_NAME"_all.deb
+
+lintian "$PACKAGE_NAME"_all.deb

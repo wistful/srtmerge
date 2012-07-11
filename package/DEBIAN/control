@@ -1,0 +1,10 @@
+Package: srtmerge
+Version: 0.3
+Section: contrib/text
+Architecture: all
+Priority: extra
+Installed-Size: 30
+Pre-Depends: python (>= 2.6)
+Maintainer: Mamrouski Mikhail <mmamrovsky@gmail.com>
+Description: Merge Srt files
+ is a Python library used to merge two Srt files.
