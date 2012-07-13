@@ -17,16 +17,27 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 __author__ = 'wistful'
+__version__ = '0.4'
+__release_date__ = "13/07/2012"
 
 from srt import subreader, subwriter
+import os
 import sys
 
 
-def srtmerge(in_srt1, in_srt2, out_srt, diff=0):
-    subs = [(start + diff, finish + diff, 1, text)
-            for (start, finish), text in subreader(in_srt1)]
-    subs.extend([(start, finish, 2, text)
-                 for (start, finish), text in subreader(in_srt2)])
+def print_version():
+    print "srtmerge: version %s (%s)" % (__version__, __release_date__)
+
+
+def srtmerge(in_srt_files, out_srt, offset=0):
+    subs = []
+    for index, in_srt in enumerate(in_srt_files):
+        if index == 0:
+            subs.extend([(start + offset, finish + offset, index, text)
+                     for (start, finish), text in subreader(in_srt)])
+        else:
+            subs.extend([(start, finish, index, text)
+                 for (start, finish), text in subreader(in_srt)])
     subs.sort()
     result = list()
     index = 0
@@ -47,22 +58,13 @@ def srtmerge(in_srt1, in_srt2, out_srt, diff=0):
     subwriter(out_srt, result)
 
 
-def _check_argv(params):
+def _check_argv(args):
     """
     check command line arguments
     """
-    import os
-    if len(params) < 3:
-        print "Error: count of params must be at least 3!\n"
-        return False
-    if not os.path.exists(params[0]) or not os.path.exists(params[1]):
-        print "Error: srt filepathes must be exist!\n"
-        return False
-    if len(params) > 3:
-        try:
-            int(params[3])
-        except ValueError:
-            print "Error: offset must be integer!\n"
+    for inSrt in args.get('inPaths', []):
+        if not os.path.exists(inSrt):
+            print "file {srt_file} not exist".format(srt_file=inSrt)
             return False
     return True
 
@@ -70,15 +72,15 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('inPaths', type=str, nargs='+',
-                        help='srt-file that must be merged')
+                        help='srt-files that must be merged')
     parser.add_argument('outPath', type=str,
-                        help='path to output file')
-    parser.add_argument('--offset', action='store_const', const=0,
+                        help='output file')
+    parser.add_argument('--offset', action='store_const', const=0, default=0,
                         help='offset in msc (default: 0)')
-    if _check_argv(sys.argv[1:]):
-        if len(sys.argv) == 4:
-            sys.argv.append(0)
-        srtmerge(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]))
-    else:
-        print ''
-        parser.print_help()
+    parser.add_argument('--version', action="store_true", dest='version', help='version')
+    if '--version' in sys.argv:
+        print_version()
+        sys.exit(0)
+    args = vars(parser.parse_args())
+    if _check_argv(args):
+        srtmerge(args.get('inPaths', []), args.get('outPath'), args.get('offset'))

@@ -309,7 +309,7 @@ class SrtMergeTest(unittest.TestCase):
         fd_all, filepath_all = tempfile.mkstemp()
         open(filepath_eng, 'w').write(SUBTITLES_ENG)
         open(filepath_rus, 'w').write(SUBTITLES_RUS)
-        srtmerge(filepath_eng, filepath_rus, filepath_all)
+        srtmerge([filepath_eng, filepath_rus], filepath_all)
         self.assertEqual(open(filepath_all).read(), SUBTITLES_ALL)
 
     def test_merge_with_diff(self):
@@ -318,7 +318,7 @@ class SrtMergeTest(unittest.TestCase):
         fd_all, filepath_all = tempfile.mkstemp()
         open(filepath_eng, 'w').write(SUBTITLES_ENG)
         open(filepath_rus, 'w').write(SUBTITLES_RUS)
-        srtmerge(filepath_eng, filepath_rus, filepath_all, 1250)
+        srtmerge([filepath_eng, filepath_rus], filepath_all, 1250)
         self.assertEqual(open(filepath_all).read(), SUBTITLES_ALL_DIFF)
 
 
