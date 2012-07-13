@@ -3,8 +3,8 @@
 PACKAGE_VERSION=`grep  Version:  debian-package/DEBIAN/control | tr -d "[:alpha:]" | tr -d "[:blank:]" | tr -d "[=:=]"`
 PACKAGE_NAME=srtmerge-$PACKAGE_VERSION
 rm -rf srtmerge-*
-
-cp srtmerge debian-package/usr/lib -R -f
+find -name "*.pyc" -delete
+cp python-package/srtmerge debian-package/usr/lib -R -f
 rm debian-package/usr/lib/srtmerge/__init__.py
 cp debian-package $PACKAGE_NAME -R
 
