@@ -54,10 +54,10 @@ def ms2time(ms):
     '00:00:00,442'
     """
     it = int(ms / 1000)
-    ms = ms - it*1000
+    ms = ms - it * 1000
     ss = it % 60
-    mm = ((it-ss)/60) % 60
-    hh = ((it-(mm*60)-ss)/3600) % 60
+    mm = ((it - ss) / 60) % 60
+    hh = ((it - (mm * 60) - ss) / 3600) % 60
     return "%02d:%02d:%02d,%03d" % (hh, mm, ss, ms)
 
 

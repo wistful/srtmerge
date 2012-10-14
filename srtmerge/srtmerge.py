@@ -17,8 +17,8 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 __author__ = 'wistful'
-__version__ = '0.4'
-__release_date__ = "13/07/2012"
+__version__ = '0.5'
+__release_date__ = "14/10/2012"
 
 from srt import subreader, subwriter
 import os
@@ -31,15 +31,16 @@ def print_version():
 
 def srtmerge(in_srt_files, out_srt, offset=0):
     subs = []
+    result = list()
+
     for index, in_srt in enumerate(in_srt_files):
         if index == 0:
             subs.extend([(start + offset, finish + offset, index, text)
-                     for (start, finish), text in subreader(in_srt)])
+                         for (start, finish), text in subreader(in_srt)])
         else:
             subs.extend([(start, finish, index, text)
-                 for (start, finish), text in subreader(in_srt)])
+                         for (start, finish), text in subreader(in_srt)])
     subs.sort()
-    result = list()
     index = 0
     while index < len(subs) - 1:
         start, finish, flag, sub_text = subs[index]
@@ -68,7 +69,8 @@ def _check_argv(args):
             return False
     return True
 
-if __name__ == '__main__':
+
+def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('inPaths', type=str, nargs='+',
@@ -84,3 +86,7 @@ if __name__ == '__main__':
     args = vars(parser.parse_args())
     if _check_argv(args):
         srtmerge(args.get('inPaths', []), args.get('outPath'), args.get('offset'))
+
+
+if __name__ == '__main__':
+    main()

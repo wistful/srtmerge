@@ -1,2 +1,0 @@
-#!/bin/sh
-python /usr/lib/srtmerge/srtmerge.py $*
