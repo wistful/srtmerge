@@ -6,7 +6,7 @@
 
 ## Usage
 ```python
-    from srtmerge import srtmerge
+    from srtmerge.srtmerge import srtmerge
     srtmerge([filepath1, filepath2, ...], out_filepath, offset=1000)
 ```
 
