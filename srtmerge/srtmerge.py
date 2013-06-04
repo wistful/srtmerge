@@ -17,29 +17,27 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 __author__ = 'wistful'
-__version__ = '0.5'
-__release_date__ = "14/10/2012"
+__version__ = '0.6'
+__release_date__ = "04/06/2013"
 
-from srt import subreader, subwriter
+from srt import subreader, subwriter, SubRecord
 import os
 import sys
 
 
 def print_version():
-    print "srtmerge: version %s (%s)" % (__version__, __release_date__)
+    print("srtmerge: version %s (%s)" % (__version__, __release_date__))
 
 
 def srtmerge(in_srt_files, out_srt, offset=0):
-    subs = []
-    result = list()
+    subs, result = [], []
+
+    map(subreader, in_srt_files)
 
     for index, in_srt in enumerate(in_srt_files):
-        if index == 0:
-            subs.extend([(start + offset, finish + offset, index, text)
-                         for (start, finish), text in subreader(in_srt)])
-        else:
-            subs.extend([(start, finish, index, text)
-                         for (start, finish), text in subreader(in_srt)])
+        _diff = offset if index == 0 else 0
+        subs.extend([(rec.start + _diff, rec.finish + _diff, index, rec.text)
+                     for rec in subreader(in_srt)])
     subs.sort()
     index = 0
     while index < len(subs) - 1:
@@ -54,7 +52,10 @@ def srtmerge(in_srt_files, out_srt, offset=0):
             else:
                 break
         index = i
-        result.append(((start, finish), "".join([record[1][1] for record in sorted(enumerate(text), key=lambda (index, item): (item[0], index))])))
+        # I hate this code
+        x = sorted(enumerate(text), key=lambda (n, item): (item[0], n))
+        y = [record[1][1] for record in x]
+        result.append(SubRecord(start, finish, "".join(y)))
 
     subwriter(out_srt, result)
 
@@ -79,13 +80,16 @@ def main():
                         help='output file')
     parser.add_argument('--offset', action='store_const', const=0, default=0,
                         help='offset in msc (default: 0)')
-    parser.add_argument('--version', action="store_true", dest='version', help='version')
+    parser.add_argument('--version', action="store_true",
+                        dest='version', help='version')
     if '--version' in sys.argv:
         print_version()
         sys.exit(0)
     args = vars(parser.parse_args())
     if _check_argv(args):
-        srtmerge(args.get('inPaths', []), args.get('outPath'), args.get('offset'))
+        srtmerge(args.get('inPaths', []),
+                 args.get('outPath'),
+                 args.get('offset'))
 
 
 if __name__ == '__main__':

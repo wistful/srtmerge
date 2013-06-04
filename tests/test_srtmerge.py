@@ -25,16 +25,17 @@ sys.path.append("..")
 import tempfile
 from srtmerge import srt
 import unittest
-from srtmerge.srtmerge import srtmerge
+from srtmerge import srtmerge
 
 RES_TIME = [("00:04:03,638 --> 00:04:06,439", (243638, 246439)),
             ("00:04:08,442 --> 00:04:09,506", (248442, 249506)),
             ("00:00:00,442 --> 00:00:02,777", (442, 2777)),
             ("01:00:08,442 --> 01:00:19,985", (3608442, 3619985)),
             ("03:37:00,879 --> 03:58:29,312", (13020879, 14309312)),
-           ]
+            ]
 
-INVALID_TIME = ["00:14:33 --> 00:14:35,419", "invalid string --> correct string"]
+INVALID_TIME = ["00:14:33 --> 00:14:35,419",
+                "invalid string --> correct string"]
 
 SUBTITLES = """1
 00:03:49,824 --> 00:03:53,243
@@ -269,7 +270,7 @@ hitherto undreamed of?
 
 """
 
-SUBTITLES_STRUCTURE = [((229824, 233243), '\xe2\x99\xaa Our whole universe\nwas in a hot, dense state \xe2\x99\xaa\n'), ((233244, 236863), '\xe2\x99\xaa Then nearly 14 billion years\nago expansion started... Wait! \xe2\x99\xaa\n'), ((236864, 238731), '\xe2\x99\xaa The Earth began to cool \xe2\x99\xaa\n'), ((238732, 241434), '\xe2\x99\xaa The autotrophs began to drool,\nNeanderthals developed tools \xe2\x99\xaa\n'), ((241435, 243637), '\xe2\x99\xaa We built the Wall \xe2\x99\xaa\n\xe2\x99\xaa <i>We built the pyramids</i> \xe2\x99\xaa\n'), ((243638, 246439), '\xe2\x99\xaa Math, Science, History,\nunraveling the mystery \xe2\x99\xaa\n'), ((246440, 248441), '\xe2\x99\xaa That all started\nwith a big bang \xe2\x99\xaa\n'), ((248442, 249506), '\xe2\x99\xaa <i>Bang!</i> \xe2\x99\xaa\n')]
+SUBTITLES_STRUCTURE = [(229824, 233243, '\xe2\x99\xaa Our whole universe\nwas in a hot, dense state \xe2\x99\xaa\n'), (233244, 236863, '\xe2\x99\xaa Then nearly 14 billion years\nago expansion started... Wait! \xe2\x99\xaa\n'), (236864, 238731, '\xe2\x99\xaa The Earth began to cool \xe2\x99\xaa\n'), (238732, 241434, '\xe2\x99\xaa The autotrophs began to drool,\nNeanderthals developed tools \xe2\x99\xaa\n'), (241435, 243637, '\xe2\x99\xaa We built the Wall \xe2\x99\xaa\n\xe2\x99\xaa <i>We built the pyramids</i> \xe2\x99\xaa\n'), (243638, 246439, '\xe2\x99\xaa Math, Science, History,\nunraveling the mystery \xe2\x99\xaa\n'), (246440, 248441, '\xe2\x99\xaa That all started\nwith a big bang \xe2\x99\xaa\n'), (248442, 249506, '\xe2\x99\xaa <i>Bang!</i> \xe2\x99\xaa\n')]
 
 
 class SrtText(unittest.TestCase):
@@ -293,11 +294,15 @@ class SrtText(unittest.TestCase):
         fd = tempfile.NamedTemporaryFile()
         fd.write(SUBTITLES)
         fd.flush()
-        self.assertEqual(srt.subreader(fd.name), SUBTITLES_STRUCTURE)
+        subs = [(record.start, record.finish, record.text)
+                for record in srt.subreader(fd.name)]
+        self.assertEqual(subs, SUBTITLES_STRUCTURE)
 
     def test_subwriter(self):
         fd, filepath = tempfile.mkstemp()
-        srt.subwriter(filepath, SUBTITLES_STRUCTURE)
+        subs = [srt.SubRecord(start, finish, text)
+                for start, finish, text in SUBTITLES_STRUCTURE]
+        srt.subwriter(filepath, subs)
         self.assertEqual(open(filepath).read(), SUBTITLES)
 
 

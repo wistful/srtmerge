@@ -21,6 +21,11 @@ __author__ = 'wistful'
 import re
 
 
+from collections import namedtuple
+
+SubRecord = namedtuple('SubRecord', ['start', 'finish', 'text'])
+
+
 class SrtFormatError(Exception):
     def __init__(self, message):
         self.message = message
@@ -72,34 +77,43 @@ def parse_ms(start, finish):
 
 def subreader(file_path):
     """
-    return [((time_start, time_finish), subtitle_text), ...]
-    file_path: full path to srt-file
+    generator return namedtuple SubRecord(start, finish, text)
+    Args:
+        file_path: full path to srt-file
     """
     pattern_index = r"^\d+$"
-    records, times, text = list(), None, list()
+    # records, times, text = list(), None, list()
+    start = finish = None
+    text = []
     for line in open(file_path, 'r'):
         line = line.strip()
         if re.match(pattern_index, line):
-            if times:
-                records.append((times, '\n'.join(text) + '\n'))
-                times, text = None, list()
+            if start and finish:
+                yield SubRecord(start, finish,
+                                text='{0}\n'.format('\n'.join(text)))
+                start = finish = None
+                text = []
         elif '-->' in line:
-            times = parse_time(line)
+            start, finish = parse_time(line)
         elif line:
             text.append(line)
-    if times:
-        records.append((times, '\n'.join(text) + '\n'))
-    return records
+    if start and finish:
+        yield SubRecord(start, finish, text='{0}\n'.format('\n'.join(text)))
 
 
 def subwriter(filepath, subtitles):
     """
     filepath: path to srt-file
-    subtitles: [((time_start, time_finish), subtitle_text), ...]
+    subtitles: [SubRecord(start, finish, text), ...]
 
     write subtitles structure to srt-file
     """
-    open(filepath, 'w').writelines(["%s\n%s\n%s\n" % (str(index), parse_ms(start, finish), text) for index, ((start, finish), text) in enumerate(subtitles, 1)])
+    lines = ["{index}\n{time}\n{text}\n".format(index=str(index),
+                                                time=parse_ms(rec.start,
+                                                              rec.finish),
+                                                text=rec.text)
+             for index, rec in enumerate(subtitles, 1)]
+    open(filepath, 'w').writelines(lines)
 
 if __name__ == '__main__':
     import doctest

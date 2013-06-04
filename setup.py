@@ -5,6 +5,7 @@ import sys
 import os
 
 from setuptools import setup, find_packages
+from srtmerge.srtmerge import __version__, __author__
 
 if sys.version_info[:2] < (2, 6):
     raise Exception('This version of srtmerge needs Python 2.6 or later. ')
@@ -28,8 +29,8 @@ srtmerge filepath1 filepath2 out_filepath offset=1000
 """
 
 setup(name='srtmerge',
-      version='0.5',
-      author='wistful',
+      version=__version__,
+      author=__author__,
       author_email='wst.public.mail@gmail.com',
       packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
       description="srtmerge (.srt) used to merge two Srt files",
