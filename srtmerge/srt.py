@@ -40,14 +40,25 @@ def parse_time(str_time):
     >>> parse_time("00:14:33,460 --> 00:14:35,419")
     (873460, 875419)
     """
-    pattern_time = r"(?P<h1>\d+):(?P<m1>\d+):(?P<s1>\d+),(?P<ms1>\d+)\W*-->\W*(?P<h2>\d+):(?P<m2>\d+):(?P<s2>\d+),(?P<ms2>\d+)$"
+    def get_ms(hours, minutes, seconds, miliseconds):
+        all_seconds = seconds + minutes * 60 + hours * 60 * 60
+        return all_seconds * 1000 + int(miliseconds)
+
+    pattern_time = (r"(?P<h1>\d+):(?P<m1>\d+):(?P<s1>\d+),(?P<ms1>\d+)\W*-->"
+                    "\W*(?P<h2>\d+):(?P<m2>\d+):(?P<s2>\d+),(?P<ms2>\d+)$")
     try:
         d = re.match(pattern_time, str_time.strip()).groupdict()
     except:
-        message = u"Invalid string format '%s' , expect hh:mm:ss,msc --> hh:mm:ss,msc" % str_time
+        message = (u"Invalid string format '%s', "
+                   "expect hh:mm:ss,msc --> hh:mm:ss,msc" % str_time)
         raise SrtFormatError(message)
-    get_ms = lambda h, m, s, ms: (int(s) + int(m) * 60 + int(h) * 60 * 60) * 1000 + int(ms)
-    return get_ms(d['h1'], d['m1'], d['s1'], d['ms1']), get_ms(d['h2'], d['m2'], d['s2'], d['ms2'])
+
+    # convert dict values to int
+    d = dict(zip(d.keys(), map(int, d.values())))
+    result = (get_ms(d['h1'], d['m1'], d['s1'], d['ms1']),
+              get_ms(d['h2'], d['m2'], d['s2'], d['ms2']))
+
+    return result
 
 
 def ms2time(ms):
@@ -77,18 +88,20 @@ def parse_ms(start, finish):
 
 def subreader(file_path):
     """
-    generator return namedtuple SubRecord(start, finish, text)
+    generator returns namedtuple SubRecord(start, finish, text)
     Args:
         file_path: full path to srt-file
     """
     pattern_index = r"^\d+$"
-    # records, times, text = list(), None, list()
+
     start = finish = None
     text = []
+
     for line in open(file_path, 'r'):
         line = line.strip()
+
         if re.match(pattern_index, line):
-            if start and finish:
+            if start and finish:  # we've found next index
                 yield SubRecord(start, finish,
                                 text='{0}\n'.format('\n'.join(text)))
                 start = finish = None
@@ -97,22 +110,24 @@ def subreader(file_path):
             start, finish = parse_time(line)
         elif line:
             text.append(line)
+
+    # don't forget about last record
     if start and finish:
         yield SubRecord(start, finish, text='{0}\n'.format('\n'.join(text)))
 
 
 def subwriter(filepath, subtitles):
-    """
-    filepath: path to srt-file
-    subtitles: [SubRecord(start, finish, text), ...]
+    """Writes list of SubRecord into srt-file.
 
-    write subtitles structure to srt-file
+    Args:
+        filepath: path to srt-file
+        subtitles: [SubRecord(start, finish, text), ...]
     """
-    lines = ["{index}\n{time}\n{text}\n".format(index=str(index),
+    lines = ("{index}\n{time}\n{text}\n".format(index=str(index),
                                                 time=parse_ms(rec.start,
                                                               rec.finish),
                                                 text=rec.text)
-             for index, rec in enumerate(subtitles, 1)]
+             for index, rec in enumerate(subtitles, 1))
     open(filepath, 'w').writelines(lines)
 
 if __name__ == '__main__':
