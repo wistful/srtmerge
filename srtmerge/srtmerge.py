@@ -20,9 +20,10 @@ __author__ = 'wistful'
 __version__ = '0.6'
 __release_date__ = "04/06/2013"
 
-from srt import subreader, subwriter, SubRecord
 import os
 import sys
+
+from srt import subreader, subwriter, SubRecord
 
 
 def print_version():
@@ -32,30 +33,30 @@ def print_version():
 def srtmerge(in_srt_files, out_srt, offset=0):
     subs, result = [], []
 
-    map(subreader, in_srt_files)
-
+    # join all srt-records into list
     for index, in_srt in enumerate(in_srt_files):
-        _diff = offset if index == 0 else 0
-        subs.extend([(rec.start + _diff, rec.finish + _diff, index, rec.text)
-                     for rec in subreader(in_srt)])
-    subs.sort()
+        for rec in subreader(in_srt):
+            # index uses below to sort text by languages
+            new_rec = SubRecord(rec.start, rec.finish, (index, rec.text))
+            subs.append(new_rec)
+
+    subs.sort()  # sort records by start time
     index = 0
     while index < len(subs) - 1:
-        start, finish, flag, sub_text = subs[index]
-        text = [(flag, sub_text)]
+        start, finish, rec_text = subs[index]
+        text = [rec_text]
         for i in xrange(index + 1, len(subs)):
             sub_rec = subs[i]
-            start2, finish2, flag2, sub_text2 = sub_rec
+            start2, finish2, rec_text2 = sub_rec
             if start2 < finish:
                 finish = max(finish, start + (finish2 - start2) * 2 / 3)
-                text.append((flag2, sub_text2))
+                text.append(rec_text2)
             else:
                 break
         index = i
-        # I hate this code
-        x = sorted(enumerate(text), key=lambda (n, item): (item[0], n))
-        y = [record[1][1] for record in x]
-        result.append(SubRecord(start, finish, "".join(y)))
+
+        text = "".join(map(lambda item: item[1], sorted(text)))
+        result.append(SubRecord(start + offset, finish + offset, text))
 
     subwriter(out_srt, result)
 
@@ -64,9 +65,9 @@ def _check_argv(args):
     """
     check command line arguments
     """
-    for inSrt in args.get('inPaths', []):
-        if not os.path.exists(inSrt):
-            print "file {srt_file} not exist".format(srt_file=inSrt)
+    for path in args.get('inPaths', []):
+        if not os.path.exists(path):
+            print("file {srt_file} does not exist".format(srt_file=path))
             return False
     return True
 

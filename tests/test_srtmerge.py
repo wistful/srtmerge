@@ -37,6 +37,8 @@ RES_TIME = [("00:04:03,638 --> 00:04:06,439", (243638, 246439)),
 INVALID_TIME = ["00:14:33 --> 00:14:35,419",
                 "invalid string --> correct string"]
 
+SUBTITLES_OFFSET = 1250
+
 SUBTITLES = """1
 00:03:49,824 --> 00:03:53,243
 ♪ Our whole universe
@@ -217,52 +219,52 @@ hitherto undreamed of?
 """
 
 SUBTITLES_ALL_DIFF = """1
-00:14:13,420 --> 00:14:15,979
+00:14:14,670 --> 00:14:17,229
 John One, you're a unicorn man.
 Джон №1, ты человек-единорог.
 
 2
-00:14:15,980 --> 00:14:19,979
+00:14:17,230 --> 00:14:21,229
 John Two, you're a wood fairy.
 Джон №2, ты лесной эльф.
 
 3
-00:14:20,180 --> 00:14:24,179
+00:14:21,430 --> 00:14:25,429
 And Phil, you're the Gypsy
 assassin, Esmerelda.
 И Фил, ты цыганка-убийца,
 Эсмеральда.
 
 4
-00:14:25,020 --> 00:14:26,459
+00:14:26,270 --> 00:14:27,709
 I'm a woman?
 Я женщина?
 
 5
-00:14:30,780 --> 00:14:32,299
+00:14:32,030 --> 00:14:33,549
 I don't think I want to be a woman.
 Не думаю, что хотел бы
 быть женщиной.
 
 6
-00:14:32,300 --> 00:14:33,459
+00:14:33,550 --> 00:14:34,709
+Just go with it.
 Просто прими это.
 
 7
-00:14:33,460 --> 00:14:35,419
-Just go with it.
+00:14:34,710 --> 00:14:36,669
 It will end.
 Это закончится.
 
 8
-00:14:35,420 --> 00:14:39,299
+00:14:36,670 --> 00:14:40,549
 So, gentlemen, are you prepared
 to open the doors to your mind
 Итак, джентльмены, вы готовы
 открыть двери в свой разум,
 
 9
-00:14:39,300 --> 00:14:42,019
+00:14:40,550 --> 00:14:43,269
 and travel to worlds
 hitherto undreamed of?
 и перенестись в
@@ -323,7 +325,7 @@ class SrtMergeTest(unittest.TestCase):
         fd_all, filepath_all = tempfile.mkstemp()
         open(filepath_eng, 'w').write(SUBTITLES_ENG)
         open(filepath_rus, 'w').write(SUBTITLES_RUS)
-        srtmerge([filepath_eng, filepath_rus], filepath_all, 1250)
+        srtmerge([filepath_eng, filepath_rus], filepath_all, SUBTITLES_OFFSET)
         self.assertEqual(open(filepath_all).read(), SUBTITLES_ALL_DIFF)
 
 
