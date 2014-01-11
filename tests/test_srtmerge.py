@@ -283,8 +283,8 @@ class BaseTestCase(unittest.TestCase):
 
     def tearDown(self):
         try:
-            map(os.close, self._fds)
-            map(os.remove, self._pathes)
+            list(map(os.close, self._fds))
+            list(map(os.remove, self._pathes))
         except OSError:
             pass
 
