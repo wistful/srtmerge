@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-#    Copyleft 2011 wistful <wst public mail at gmail com>
+#    Copyleft 2014 wistful <wst public mail at gmail com>
 #
 #    This is a free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser General Public
