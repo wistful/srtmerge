@@ -30,6 +30,10 @@ def print_version():
     print("srtmerge: version %s (%s)" % (__version__, __release_date__))
 
 
+def print_error(message):
+    print("srtmerge error: {0}".format(message))
+
+
 def srtmerge(in_srt_files, out_srt, offset=0):
     subs = Subtitles()
     for file_path in in_srt_files:
@@ -42,9 +46,13 @@ def _check_argv(args):
     """
     check command line arguments
     """
-    for path in args.get('inPaths', []):
+    inPaths = args['inPath']
+    if len(inPaths) < 2:
+        print_error("too few arguments")
+        return False
+    for path in inPaths:
         if not os.path.exists(path):
-            print("file {srt_file} does not exist".format(srt_file=path))
+            print_error("file {srt_file} does not exist".format(srt_file=path))
             return False
     return True
 
@@ -52,20 +60,20 @@ def _check_argv(args):
 def main():
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('inPaths', type=str, nargs='+',
-                        help='srt-files that must be merged')
+    parser.add_argument('inPath', type=str, nargs='+',
+                        help='srt-files that should be merged')
     parser.add_argument('outPath', type=str,
-                        help='output file')
+                        help='output file path')
     parser.add_argument('--offset', action='store_const', const=0, default=0,
                         help='offset in msc (default: 0)')
     parser.add_argument('--version', action="store_true",
-                        dest='version', help='version')
+                        dest='version', help='print version')
     if '--version' in sys.argv:
         print_version()
         sys.exit(0)
     args = vars(parser.parse_args())
     if _check_argv(args):
-        srtmerge(args.get('inPaths', []),
+        srtmerge(args.get('inPath'),
                  args.get('outPath'),
                  args.get('offset'))
 
