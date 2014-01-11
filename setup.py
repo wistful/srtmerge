@@ -7,7 +7,9 @@ import os
 from setuptools import setup, find_packages
 from srtmerge.srtmerge import __version__, __author__
 
-if sys.version_info[:2] < (2, 6):
+py_version = sys.version_info[:2]
+
+if py_version < (2, 6):
     raise Exception('This version of srtmerge needs Python 2.6 or later. ')
 
 if sys.argv[-1] in ("submit", "publish"):
@@ -28,6 +30,10 @@ Usage
 srtmerge filepath1 filepath2 out_filepath offset=1000
 """
 
+requires = []
+if py_version < (2, 7):
+    requires.append('argparse')
+
 setup(name='srtmerge',
       version=__version__,
       author=__author__,
@@ -37,6 +43,7 @@ setup(name='srtmerge',
       long_description=README,
       url="https://github.com/wistful/srtmerge",
       license="LGPL",
+      install_requires=requires,
       platforms=["Unix,"],
       keywords="srtmerge, srt, subtitle",
       test_suite='tests',
@@ -50,7 +57,7 @@ setup(name='srtmerge',
           "Topic :: Utilities"
       ],
       entry_points={
-      'console_scripts': [
-          'srtmerge = srtmerge.srtmerge:main'
-      ]},
+          'console_scripts': [
+              'srtmerge = srtmerge.srtmerge:main'
+          ]},
       )
