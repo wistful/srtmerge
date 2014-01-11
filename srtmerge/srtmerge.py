@@ -23,7 +23,7 @@ __release_date__ = "04/06/2013"
 import os
 import sys
 
-from srt import subreader, subwriter, SubRecord
+from srt import subreader, subwriter, Subtitles
 
 
 def print_version():
@@ -31,34 +31,11 @@ def print_version():
 
 
 def srtmerge(in_srt_files, out_srt, offset=0):
-    subs, result = [], []
+    subs = Subtitles()
+    for file_path in in_srt_files:
+        subs = subs + subreader(file_path)
 
-    # join all srt-records into list
-    for index, in_srt in enumerate(in_srt_files):
-        for rec in subreader(in_srt):
-            # index uses below to sort text by languages
-            new_rec = SubRecord(rec.start, rec.finish, (index, rec.text))
-            subs.append(new_rec)
-
-    subs.sort()  # sort records by start time
-    index = 0
-    while index < len(subs) - 1:
-        start, finish, rec_text = subs[index]
-        text = [rec_text]
-        for i in xrange(index + 1, len(subs)):
-            sub_rec = subs[i]
-            start2, finish2, rec_text2 = sub_rec
-            if start2 < finish:
-                finish = max(finish, start + (finish2 - start2) * 2 / 3)
-                text.append(rec_text2)
-            else:
-                break
-        index = i
-
-        text = "".join(map(lambda item: item[1], sorted(text)))
-        result.append(SubRecord(start + offset, finish + offset, text))
-
-    subwriter(out_srt, result)
+    subwriter(out_srt, subs, offset)
 
 
 def _check_argv(args):

@@ -21,10 +21,10 @@ __author__ = 'wistful'
 import sys
 sys.path.append("..")
 
-
 import tempfile
-from srtmerge import srt
 import unittest
+
+from srtmerge import srt
 from srtmerge import srtmerge
 
 RES_TIME = [("00:04:03,638 --> 00:04:06,439", (243638, 246439)),
