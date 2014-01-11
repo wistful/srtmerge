@@ -45,7 +45,7 @@ class Subtitles(Sequence, Iterable):
         return len(self.__records)
 
     def __add__(self, other):
-        def repack_record(record, index):
+        def repack_record(rec, index):
             return SubRecord(rec.start, rec.finish, (index, rec.text))
 
         subs = []
@@ -106,9 +106,9 @@ def parse_time(str_time):
     try:
         d = re.match(pattern_time, str_time.strip()).groupdict()
     except:
-        message = (u"Invalid string format '%s', "
-                   "expect hh:mm:ss,msc --> hh:mm:ss,msc" % str_time)
-        raise SrtFormatError(message)
+        message = ("Invalid string format '{0}', "
+                   "expect hh:mm:ss,msc --> hh:mm:ss,msc")
+        raise SrtFormatError(message.format(str_time))
 
     # convert dict values to int
     d = dict(zip(d.keys(), map(int, d.values())))
@@ -198,4 +198,4 @@ def subwriter(filepath, subtitles, offset=0):
 
 if __name__ == '__main__':
     import doctest
-    print doctest.testmod()
+    print(doctest.testmod())

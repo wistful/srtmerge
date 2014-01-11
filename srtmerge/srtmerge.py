@@ -23,7 +23,7 @@ __release_date__ = "04/06/2013"
 import os
 import sys
 
-from srt import subreader, subwriter, Subtitles
+from .srt import subreader, subwriter, Subtitles
 
 
 def print_version():
