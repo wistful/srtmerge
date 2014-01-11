@@ -23,7 +23,7 @@ __release_date__ = "04/06/2013"
 import os
 import sys
 
-from .srt import subreader, subwriter, Subtitles
+from .srt import srtmerge
 
 
 def print_version():
@@ -32,14 +32,6 @@ def print_version():
 
 def print_error(message):
     print("srtmerge error: {0}".format(message))
-
-
-def srtmerge(in_srt_files, out_srt, offset=0):
-    subs = Subtitles()
-    for file_path in in_srt_files:
-        subs = subs + subreader(file_path)
-
-    subwriter(out_srt, subs, offset)
 
 
 def _check_argv(args):

@@ -18,6 +18,7 @@
 
 __author__ = 'wistful'
 
+import os
 import sys
 sys.path.append("..")
 
@@ -25,7 +26,6 @@ import tempfile
 import unittest
 
 from srtmerge import srt
-from srtmerge import srtmerge
 
 RES_TIME = [("00:04:03,638 --> 00:04:06,439", (243638, 246439)),
             ("00:04:08,442 --> 00:04:09,506", (248442, 249506)),
@@ -272,10 +272,30 @@ hitherto undreamed of?
 
 """
 
-SUBTITLES_STRUCTURE = [(229824, 233243, '\xe2\x99\xaa Our whole universe\nwas in a hot, dense state \xe2\x99\xaa\n'), (233244, 236863, '\xe2\x99\xaa Then nearly 14 billion years\nago expansion started... Wait! \xe2\x99\xaa\n'), (236864, 238731, '\xe2\x99\xaa The Earth began to cool \xe2\x99\xaa\n'), (238732, 241434, '\xe2\x99\xaa The autotrophs began to drool,\nNeanderthals developed tools \xe2\x99\xaa\n'), (241435, 243637, '\xe2\x99\xaa We built the Wall \xe2\x99\xaa\n\xe2\x99\xaa <i>We built the pyramids</i> \xe2\x99\xaa\n'), (243638, 246439, '\xe2\x99\xaa Math, Science, History,\nunraveling the mystery \xe2\x99\xaa\n'), (246440, 248441, '\xe2\x99\xaa That all started\nwith a big bang \xe2\x99\xaa\n'), (248442, 249506, '\xe2\x99\xaa <i>Bang!</i> \xe2\x99\xaa\n')]
+SUBTITLES_STRUCTURE = [(229824, 233243, '♪ Our whole universe\nwas in a hot, dense state ♪\n'), (233244, 236863, '♪ Then nearly 14 billion years\nago expansion started... Wait! ♪\n'), (236864, 238731, '♪ The Earth began to cool ♪\n'), (238732, 241434, '♪ The autotrophs began to drool,\nNeanderthals developed tools ♪\n'), (241435, 243637, '♪ We built the Wall ♪\n♪ <i>We built the pyramids</i> ♪\n'), (243638, 246439, '♪ Math, Science, History,\nunraveling the mystery ♪\n'), (246440, 248441, '♪ That all started\nwith a big bang ♪\n'), (248442, 249506, '♪ <i>Bang!</i> ♪\n')]
 
 
-class SrtText(unittest.TestCase):
+class BaseTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self._fds = []
+        self._pathes = []
+
+    def tearDown(self):
+        try:
+            map(os.close, self._fds)
+            map(os.remove, self._pathes)
+        except OSError:
+            pass
+
+    def get_tmp_path(self):
+        fd, file_path = tempfile.mkstemp()
+        self._fds.append(fd)
+        self._pathes.append(file_path)
+        return file_path
+
+
+class SrtText(BaseTestCase):
 
     def test_parse_time(self):
         for str_time, times in RES_TIME:
@@ -293,40 +313,51 @@ class SrtText(unittest.TestCase):
             self.assertEqual(srt.parse_ms(*times), str_time)
 
     def test_subreader(self):
-        fd = tempfile.NamedTemporaryFile()
-        fd.write(SUBTITLES)
-        fd.flush()
+        file_path = self.get_tmp_path()
+        with open(file_path, 'w') as fd:
+            fd.write(SUBTITLES)
+
         subs = [(record.start, record.finish, record.text)
-                for record in srt.subreader(fd.name)]
+                for record in srt.subreader(file_path)]
         self.assertEqual(subs, SUBTITLES_STRUCTURE)
 
     def test_subwriter(self):
-        fd, filepath = tempfile.mkstemp()
+        filepath = self.get_tmp_path()
         subs = [srt.SubRecord(start, finish, text)
                 for start, finish, text in SUBTITLES_STRUCTURE]
         srt.subwriter(filepath, subs)
-        self.assertEqual(open(filepath).read(), SUBTITLES)
+        with open(filepath) as fd:
+            self.assertEqual(fd.read(), SUBTITLES)
 
 
-class SrtMergeTest(unittest.TestCase):
+class SrtMergeTest(BaseTestCase):
+
+    def _get_files(self):
+        filepath_eng = self.get_tmp_path()
+        filepath_rus = self.get_tmp_path()
+        filepath_all = self.get_tmp_path()
+        with open(filepath_eng, 'w') as fd:
+            fd.write(SUBTITLES_ENG)
+        with open(filepath_rus, 'w') as fd:
+            fd.write(SUBTITLES_RUS)
+
+        return filepath_eng, filepath_rus, filepath_all
 
     def test_merge(self):
-        fd_eng, filepath_eng = tempfile.mkstemp()
-        fd_rus, filepath_rus = tempfile.mkstemp()
-        fd_all, filepath_all = tempfile.mkstemp()
-        open(filepath_eng, 'w').write(SUBTITLES_ENG)
-        open(filepath_rus, 'w').write(SUBTITLES_RUS)
-        srtmerge([filepath_eng, filepath_rus], filepath_all)
-        self.assertEqual(open(filepath_all).read(), SUBTITLES_ALL)
+        filepath_eng, filepath_rus, filepath_all = self._get_files()
+
+        srt.srtmerge([filepath_eng, filepath_rus], filepath_all)
+        with open(filepath_all) as fd:
+            self.assertEqual(fd.read(), SUBTITLES_ALL)
 
     def test_merge_with_diff(self):
-        fd_eng, filepath_eng = tempfile.mkstemp()
-        fd_rus, filepath_rus = tempfile.mkstemp()
-        fd_all, filepath_all = tempfile.mkstemp()
-        open(filepath_eng, 'w').write(SUBTITLES_ENG)
-        open(filepath_rus, 'w').write(SUBTITLES_RUS)
-        srtmerge([filepath_eng, filepath_rus], filepath_all, SUBTITLES_OFFSET)
-        self.assertEqual(open(filepath_all).read(), SUBTITLES_ALL_DIFF)
+        filepath_eng, filepath_rus, filepath_all = self._get_files()
+
+        srt.srtmerge([filepath_eng, filepath_rus],
+                     filepath_all, SUBTITLES_OFFSET)
+
+        with open(filepath_all) as fd:
+            self.assertEqual(fd.read(), SUBTITLES_ALL_DIFF)
 
 
 if __name__ == '__main__':

@@ -143,6 +143,14 @@ def parse_ms(start, finish):
     return "%s --> %s" % (ms2time(start), ms2time(finish))
 
 
+def srtmerge(in_srt_files, out_srt, offset=0):
+    subs = Subtitles()
+    for file_path in in_srt_files:
+        subs = subs + subreader(file_path)
+
+    subwriter(out_srt, subs, offset)
+
+
 def subreader(file_path):
     """
     Reads srt-file and returns Subtitles instance.
@@ -156,22 +164,23 @@ def subreader(file_path):
     start = finish = None
     text = []
 
-    for line in open(file_path, 'r'):
-        line = line.strip()
+    with open(file_path, 'r') as fd:
+        for line in fd:
+            line = line.strip()
 
-        if re.match(pattern_index, line):
-            if start and finish:  # we've found next index
-                subtitles.append(
-                    SubRecord(start, finish,
-                              text='{0}\n'.format('\n'.join(text))
-                              )
-                )
-                start = finish = None
-                text = []
-        elif '-->' in line:
-            start, finish = parse_time(line)
-        elif line:
-            text.append(line)
+            if re.match(pattern_index, line):
+                if start and finish:  # we've found next index
+                    subtitles.append(
+                        SubRecord(start, finish,
+                                  text='{0}\n'.format('\n'.join(text))
+                                  )
+                    )
+                    start = finish = None
+                    text = []
+            elif '-->' in line:
+                start, finish = parse_time(line)
+            elif line:
+                text.append(line)
 
     # don't forget about last record
     if start and finish:
@@ -194,7 +203,9 @@ def subwriter(filepath, subtitles, offset=0):
                                        rec.finish + offset),
                          text=rec.text)
              for index, rec in enumerate(subtitles, 1))
-    open(filepath, 'w').writelines(lines)
+
+    with open(filepath, 'w') as fd:
+        fd.writelines(lines)
 
 if __name__ == '__main__':
     import doctest
