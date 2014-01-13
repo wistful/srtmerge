@@ -27,6 +27,8 @@ import unittest
 
 from srtmerge import srt
 
+DEFAULT_ENCODING = srt.DEFAULT_ENCODING
+
 RES_TIME = [("00:04:03,638 --> 00:04:06,439", (243638, 246439)),
             ("00:04:08,442 --> 00:04:09,506", (248442, 249506)),
             ("00:00:00,442 --> 00:00:02,777", (442, 2777)),
@@ -273,6 +275,10 @@ hitherto undreamed of?
 """
 
 SUBTITLES_STRUCTURE = [(229824, 233243, '♪ Our whole universe\nwas in a hot, dense state ♪\n'), (233244, 236863, '♪ Then nearly 14 billion years\nago expansion started... Wait! ♪\n'), (236864, 238731, '♪ The Earth began to cool ♪\n'), (238732, 241434, '♪ The autotrophs began to drool,\nNeanderthals developed tools ♪\n'), (241435, 243637, '♪ We built the Wall ♪\n♪ <i>We built the pyramids</i> ♪\n'), (243638, 246439, '♪ Math, Science, History,\nunraveling the mystery ♪\n'), (246440, 248441, '♪ That all started\nwith a big bang ♪\n'), (248442, 249506, '♪ <i>Bang!</i> ♪\n')]
+
+if sys.version_info[0] < 3:
+    SUBTITLES_STRUCTURE = [(rec[0], rec[1], rec[2].decode(DEFAULT_ENCODING))
+                           for rec in SUBTITLES_STRUCTURE]
 
 
 class BaseTestCase(unittest.TestCase):

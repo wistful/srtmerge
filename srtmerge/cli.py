@@ -58,6 +58,10 @@ def main():
                         help='output file path')
     parser.add_argument('--offset', action='store_const', const=0, default=0,
                         help='offset in msc (default: 0)')
+    parser.add_argument('--chardet', action='store_true', default=False,
+                        help='detect character encoding')
+    parser.add_argument('--encoding', type=str, default='utf-8',
+                        help='encoding for the output file')
     parser.add_argument('--version', action="store_true",
                         dest='version', help='print version')
     if '--version' in sys.argv:
@@ -67,7 +71,9 @@ def main():
     if _check_argv(args):
         srtmerge(args.get('inPath'),
                  args.get('outPath'),
-                 args.get('offset'))
+                 args.get('offset'),
+                 args.get('chardet'),
+                 args.get('encoding'))
 
 
 if __name__ == '__main__':

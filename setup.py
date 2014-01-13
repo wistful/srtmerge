@@ -5,7 +5,7 @@ import sys
 import os
 
 from setuptools import setup, find_packages
-from srtmerge.srtmerge import __version__, __author__
+from srtmerge.cli import __version__, __author__
 
 py_version = sys.version_info[:2]
 
@@ -30,7 +30,7 @@ Usage
 srtmerge filepath1 filepath2 out_filepath offset=1000
 """
 
-requires = []
+requires = ['chardet']
 if py_version < (2, 7):
     requires.append('argparse')
 

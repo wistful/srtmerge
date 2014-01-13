@@ -18,16 +18,26 @@
 
 __author__ = 'wistful'
 
+import codecs
 import re
+import sys
 from collections import namedtuple, Sequence, Iterable
 
+if sys.version_info[0] > 2:
+    unicode = str
+
+from chardet.universaldetector import UniversalDetector
+
 SubRecord = namedtuple('SubRecord', ['start', 'finish', 'text'])
+DEFAULT_ENCODING = 'utf-8'
 
 
 class Subtitles(Sequence, Iterable):
+
     """
     Class represents container for subtitle records.
     """
+
     def __init__(self):
         self.__records = []
 
@@ -143,15 +153,26 @@ def parse_ms(start, finish):
     return "%s --> %s" % (ms2time(start), ms2time(finish))
 
 
-def srtmerge(in_srt_files, out_srt, offset=0):
+def detect_encoding(file_path):
+    with open(file_path, 'rb') as f:
+        u = UniversalDetector()
+        for line in f:
+            u.feed(line)
+        u.close()
+        return u.result['encoding']
+
+
+def srtmerge(in_srt_files, out_srt,
+             offset=0, chardet=False, encoding=DEFAULT_ENCODING):
     subs = Subtitles()
     for file_path in in_srt_files:
-        subs = subs + subreader(file_path)
+        in_encoding = detect_encoding(file_path) if chardet else DEFAULT_ENCODING
+        subs = subs + subreader(file_path, encoding=in_encoding)
 
-    subwriter(out_srt, subs, offset)
+    subwriter(out_srt, subs, offset, encoding)
 
 
-def subreader(file_path):
+def subreader(file_path, encoding=DEFAULT_ENCODING):
     """
     Reads srt-file and returns Subtitles instance.
     Args:
@@ -163,16 +184,15 @@ def subreader(file_path):
 
     start = finish = None
     text = []
-
-    with open(file_path, 'r') as fd:
+    with codecs.open(file_path, 'rb') as fd:
         for line in fd:
-            line = line.strip()
+            line = line.decode(encoding).strip()
 
             if re.match(pattern_index, line):
                 if start and finish:  # we've found next index
                     subtitles.append(
                         SubRecord(start, finish,
-                                  text='{0}\n'.format('\n'.join(text))
+                                  text=unicode('{0}\n').format('\n'.join(text))
                                   )
                     )
                     start = finish = None
@@ -185,27 +205,28 @@ def subreader(file_path):
     # don't forget about last record
     if start and finish:
         subtitles.append(
-            SubRecord(start, finish, text='{0}\n'.format('\n'.join(text)))
+            SubRecord(start, finish,
+                      text=unicode('{0}\n').format('\n'.join(text)))
         )
+
     return subtitles
 
 
-def subwriter(filepath, subtitles, offset=0):
+def subwriter(filepath, subtitles, offset=0, encoding=DEFAULT_ENCODING):
     """Writes Subtitles into srt-file.
 
     Args:
         filepath: path to srt-file
         subtitles: Subtitles instance
     """
-    line = "{index}\n{time}\n{text}\n"
-    lines = (line.format(index=str(index),
-                         time=parse_ms(rec.start + offset,
-                                       rec.finish + offset),
-                         text=rec.text)
-             for index, rec in enumerate(subtitles, 1))
-
-    with open(filepath, 'w') as fd:
-        fd.writelines(lines)
+    line = unicode("{index}\n{time}\n{text}\n")
+    with codecs.open(filepath, 'w', encoding=encoding) as fd:
+        for index, rec in enumerate(subtitles, 1):
+            text = line.format(index=unicode(index),
+                               time=parse_ms(rec.start + offset,
+                                             rec.finish + offset),
+                               text=rec.text)
+            fd.write(text)
 
 if __name__ == '__main__':
     import doctest
