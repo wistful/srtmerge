@@ -17,8 +17,8 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 __author__ = 'wistful'
-__version__ = '0.6'
-__release_date__ = "04/06/2013"
+__version__ = '1.0'
+__release_date__ = "15/01/2014"
 
 import os
 import sys

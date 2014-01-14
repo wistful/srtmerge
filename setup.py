@@ -47,7 +47,7 @@ setup(name='srtmerge',
       keywords="srtmerge, srt, subtitle",
       test_suite='tests',
       classifiers=[
-          "Development Status :: 4 - Beta",
+          "Development Status :: 5 - Production/Stable",
           "Environment :: Console",
           "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
           "Operating System :: POSIX :: Linux",
