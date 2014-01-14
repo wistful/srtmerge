@@ -14,7 +14,6 @@ if py_version < (2, 6):
 
 if sys.argv[-1] in ("submit", "publish"):
     os.system("python setup.py bdist_egg sdist --format=zip upload")
-    os.system("python2.6 setup.py bdist_egg upload")
     sys.exit()
 
 README = """srtmerge is a Python library used to merge two Srt files.
@@ -59,6 +58,6 @@ setup(name='srtmerge',
       ],
       entry_points={
           'console_scripts': [
-              'srtmerge = srtmerge.srtmerge:main'
+              'srtmerge = srtmerge.cli:main'
           ]},
       )
