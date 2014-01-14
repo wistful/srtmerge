@@ -59,7 +59,8 @@ def main():
     parser.add_argument('--offset', action='store_const', const=0, default=0,
                         help='offset in msc (default: 0)')
     parser.add_argument('-d', '--disable-chardet', action='store_true',
-                        default=False, help='disable auto character encoding')
+                        dest='nochardet', default=False,
+                        help='disable auto character encoding')
     parser.add_argument('--encoding', type=str, default='utf-8',
                         help='encoding for the output file (utf-8)')
     parser.add_argument('--version', action="store_true",
@@ -72,7 +73,7 @@ def main():
         srtmerge(args.get('inPath'),
                  args.get('outPath'),
                  args.get('offset'),
-                 args.get('chardet'),
+                 not args.get('nochardet'),
                  args.get('encoding'))
 
 

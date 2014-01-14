@@ -163,10 +163,10 @@ def detect_encoding(file_path):
 
 
 def srtmerge(in_srt_files, out_srt,
-             offset=0, chardet=False, encoding=DEFAULT_ENCODING):
+             offset=0, use_chardet=False, encoding=DEFAULT_ENCODING):
     subs = Subtitles()
     for file_path in in_srt_files:
-        in_encoding = detect_encoding(file_path) if chardet else DEFAULT_ENCODING
+        in_encoding = detect_encoding(file_path) if use_chardet else DEFAULT_ENCODING
         subs = subs + subreader(file_path, encoding=in_encoding)
 
     subwriter(out_srt, subs, offset, encoding)
