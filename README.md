@@ -11,3 +11,7 @@
 ```
 
 `srtmerge filepath1 filepath2 out_filepath offset=1000`
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/wistful/srtmerge/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
