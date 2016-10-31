@@ -7,11 +7,6 @@ import os
 from setuptools import setup, find_packages
 from srtmerge.cli import __version__, __author__
 
-py_version = sys.version_info[:2]
-
-if py_version < (2, 6):
-    raise Exception('This version of srtmerge needs Python 2.6 or later. ')
-
 if sys.argv[-1] in ("submit", "publish"):
     os.system("python setup.py bdist_egg sdist --format=zip upload")
     sys.exit()
@@ -30,8 +25,6 @@ srtmerge filepath1 filepath2 out_filepath offset=1000
 """
 
 requires = ['chardet']
-if py_version < (2, 7):
-    requires.append('argparse')
 
 setup(name='srtmerge',
       version=__version__,
@@ -51,7 +44,6 @@ setup(name='srtmerge',
           "Environment :: Console",
           "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
           "Operating System :: POSIX :: Linux",
-          "Programming Language :: Python :: 2",
           "Programming Language :: Python :: 3",
           "Topic :: Text Processing",
           "Topic :: Utilities"
