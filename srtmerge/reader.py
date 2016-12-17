@@ -14,7 +14,11 @@ def time_to_ms(hours, minutes, seconds, milliseconds):
     return all_seconds * 1000 + milliseconds
 
 
-class Srt(collections.abc.Iterable):
+class BaseReader(collections.abc.Iterable):
+    """Base subtitle reader."""
+
+
+class Srt(BaseReader):
     """Reader for srt subtitles."""
 
     # pattern to parse *.srt subtitles

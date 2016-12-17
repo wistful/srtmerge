@@ -1,14 +1,25 @@
-"""Module contains readers for different type of subtitles."""
+"""Module contains writers for different type of subtitles."""
 
 
-class Srt(object):
-    """Writer for srt subtitles."""
-
-    RECORD_PATTERN = '{index}\n{start_time} --> {end_time}\n{text}\n'
+class BaseWriter(object):
 
     def __init__(self, records):
         """Initialize srt subtitles writer."""
         self._records = iter(records)
+
+    def __iter__(self):
+        """Return instance itself as an iterator."""
+        return self
+
+    def __next__(self):
+        """Return next subtitle record."""
+        pass
+
+
+class Srt(BaseWriter):
+    """Writer for srt subtitles."""
+
+    RECORD_PATTERN = '{index}\n{start_time} --> {end_time}\n{text}\n'
 
     def ms_to_str(self, ms):
         """Convert ms to string representation.
@@ -24,10 +35,6 @@ class Srt(object):
         mm = ((it - ss) / 60) % 60
         hh = ((it - (mm * 60) - ss) / 3600) % 60
         return "%02d:%02d:%02d,%03d" % (hh, mm, ss, ms)
-
-    def __iter__(self):
-        """Return instance itself as an iterator."""
-        return self
 
     def __next__(self):
         """Return next subtitle record."""
