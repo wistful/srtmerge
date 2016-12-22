@@ -63,9 +63,6 @@ def main():
                         help='srt-files that should be merged')
     parser.add_argument('outPath', type=str,
                         help='output file path')
-    parser.add_argument('-d', '--disable-chardet', action='store_true',
-                        dest='nochardet', default=False,
-                        help='disable auto character encoding')
     parser.add_argument('--encoding', type=str, default='utf-8',
                         help='encoding for the output file (utf-8)')
     parser.add_argument('--version', action="store_true",
