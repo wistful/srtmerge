@@ -8,8 +8,8 @@ import sys
 
 from chardet.universaldetector import UniversalDetector
 
+from srtmerge import common
 from srtmerge import reader
-from srtmerge import srt
 from srtmerge import writer
 
 __author__ = 'wistful'
@@ -53,7 +53,7 @@ def detect_encoding(file_path):
 def merge_subtitles(in_path1, in_path2, out_path, encoding):
     subs1 = reader.read(in_path1, detect_encoding(in_path1))
     subs2 = reader.read(in_path2, detect_encoding(in_path2))
-    writer.write(out_path, srt.merge(subs1, subs2), encoding)
+    writer.write(out_path, common.merge(subs1, subs2), encoding)
 
 
 def main():

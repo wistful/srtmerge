@@ -1,8 +1,12 @@
 # coding=utf8
 
 """Module contains functions to merger two subtitles into one."""
+import collections
 
-from srtmerge import reader
+# Structure for a subtitle record
+Record = collections.namedtuple(
+    'Record', ['index', 'start_time', 'end_time', 'text'])
+
 
 MAX_OFFSET = 75 ** 2  # offset in percents**2
 MAX_DURATION = 3000  # max duration in ms for one subtitle record
@@ -27,7 +31,6 @@ def merge(subs1, subs2):
     """Generator to merge records from given subtitles."""
     subs1 = sorted(subs1, key=lambda item: item.start_time)
     subs2 = sorted(subs2, key=lambda item: item.start_time)
-
     # max indexes for subtitles
     max_index1, max_index2 = len(subs1) - 1, len(subs2) - 1
     # temporary indexes for the subtitles records
@@ -51,8 +54,8 @@ def merge(subs1, subs2):
                          rec2.start_time if rec2 else float('inf'))
         # max end time of next merged subtitle record
         end_time = max(
-            rec1.end_time if rec1 else float('nan'),
-            rec2.end_time if rec2 else float('nan'),
+            rec1.end_time if rec1 else start_time + MAX_DURATION,
+            rec2.end_time if rec2 else start_time + MAX_DURATION,
             start_time + MAX_DURATION)
 
         position = start_time  # goes from min start_time to max end_time
@@ -97,8 +100,8 @@ def merge(subs1, subs2):
                 min_delta = delta
                 text1 = '\n'.join(subs1[i].text for i in tmp_subs1)
                 text2 = '\n'.join(subs2[i].text for i in tmp_subs2)
-                record = reader.Record(index, start_time, position,
-                                       '%s\n%s' % (text1, text2))
+                record = Record(index, start_time, position,
+                                '%s\n%s' % (text1, text2))
 
                 tmp_init_index1 = init_index1 + len(tmp_subs1)
                 tmp_init_index2 = init_index2 + len(tmp_subs2)

@@ -3,9 +3,7 @@
 import collections
 import re
 
-# Structure for a subtitle record
-Record = collections.namedtuple(
-    'Record', ['index', 'start_time', 'end_time', 'text'])
+from srtmerge.common import Record
 
 
 def time_to_ms(hours, minutes, seconds, milliseconds):
