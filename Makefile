@@ -5,7 +5,7 @@ PROJECT_DIR := $(dir $(MKFILE_PATH))
 TMP_SRC_DIR=/tmp/src
 WORK_DIR=/mnt/src
 
-PYLINT_PRJ_FLAGS=
+PYLINT_PRJ_FLAGS=--persistent=n --good-names=i,j,k,ex,Run,_,fd,ud,ms,ss,mm,hh --extension-pkg-whitelist=re
 PYLINT_TESTS_FLAGS=--disable=missing-docstring,no-member,protected-access,no-self-use,redefined-outer-name,too-many-locals
 
 DOCKER_RUN_CMD=docker run -t -i --rm=true --workdir=$(WORK_DIR) -v $(PROJECT_DIR):$(WORK_DIR):ro python:3
@@ -17,7 +17,7 @@ TEST_CMD=$(CLONE_WORKDIR_CMD) && python setup.py test
 SETUP_CMD=$(CLONE_WORKDIR_CMD) && python setup.py develop
 
 LINT_FLAKE=flake8 . || true
-LINT_PYLINT=pylint srtmerge $(PYLINT_PRJ_FLAGS) --reports=n || true; pylint tests $(PYLINT_TESTS_FLAGS) --reports=n || true
+LINT_PYLINT=pylint srtmerge $(PYLINT_PRJ_FLAGS) --reports=n || true; pylint tests $(PYLINT_PRJ_FLAGS) $(PYLINT_TESTS_FLAGS) --reports=n || true
 LINT_CMD=$(SETUP_CMD) && pip install flake8 pylint; $(LINT_FLAKE); $(LINT_PYLINT)
 
 .PHONY: clean-pyc

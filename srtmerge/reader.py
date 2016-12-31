@@ -22,9 +22,9 @@ class Srt(BaseReader):
     # pattern to parse *.srt subtitles
     RECORD_PATTERN = re.compile(
         r"(?P<index>\d+)\s*\n"
-        "(?P<hh1>\d+):(?P<mm1>\d+):(?P<ss1>\d+)[,\.](?P<ms1>\d+)\W*-->"
-        "\W*(?P<hh2>\d+):(?P<mm2>\d+):(?P<ss2>\d+)[,\.](?P<ms2>\d+)\s*\n"
-        "(?P<text>.*)",
+        r"(?P<hh1>\d+):(?P<mm1>\d+):(?P<ss1>\d+)[,\.](?P<ms1>\d+)\W*-->"
+        r"\W*(?P<hh2>\d+):(?P<mm2>\d+):(?P<ss2>\d+)[,\.](?P<ms2>\d+)\s*\n"
+        r"(?P<text>.*)",
         re.MULTILINE | re.DOTALL)
 
     def __init__(self, subs_str):

@@ -14,8 +14,7 @@ RES_TIME = [("00:04:03,638 --> 00:04:06,439", (243638, 246439)),
             ("00:04:08,442 --> 00:04:09,506", (248442, 249506)),
             ("00:00:00,442 --> 00:00:02,777", (442, 2777)),
             ("01:00:08,442 --> 01:00:19,985", (3608442, 3619985)),
-            ("03:37:00,879 --> 03:58:29,312", (13020879, 14309312)),
-            ]
+            ("03:37:00,879 --> 03:58:29,312", (13020879, 14309312))]
 
 INVALID_TIME = ["00:14:33 --> 00:14:35,419",
                 "invalid string --> correct string"]
@@ -201,7 +200,18 @@ hitherto undreamed of?
 
 """
 
-SUBTITLES_STRUCTURE = [(229824, 233243, '♪ Our whole universe\nwas in a hot, dense state ♪\n'), (233244, 236863, '♪ Then nearly 14 billion years\nago expansion started... Wait! ♪\n'), (236864, 238731, '♪ The Earth began to cool ♪\n'), (238732, 241434, '♪ The autotrophs began to drool,\nNeanderthals developed tools ♪\n'), (241435, 243637, '♪ We built the Wall ♪\n♪ <i>We built the pyramids</i> ♪\n'), (243638, 246439, '♪ Math, Science, History,\nunraveling the mystery ♪\n'), (246440, 248441, '♪ That all started\nwith a big bang ♪\n'), (248442, 249506, '♪ <i>Bang!</i> ♪\n')]
+# sdpylint: disable=line-too-long
+SUBTITLES_STRUCTURE = [
+    (229824, 233243, '♪ Our whole universe\nwas in a hot, dense state ♪\n'),
+    (233244, 236863, '♪ Then nearly 14 billion years\nago expansion started... Wait! ♪\n'),  # noqa: E501 pylint: disable=line-too-long
+    (236864, 238731, '♪ The Earth began to cool ♪\n'),
+    (238732, 241434, '♪ The autotrophs began to drool,\nNeanderthals developed tools ♪\n'),  # noqa: E501 pylint: disable=line-too-long
+    (241435, 243637, '♪ We built the Wall ♪\n♪ <i>We built the pyramids</i> ♪\n'),  # noqa: E501 pylint: disable=line-too-long
+    (243638, 246439, '♪ Math, Science, History,\nunraveling the mystery ♪\n'),
+    (246440, 248441, '♪ That all started\nwith a big bang ♪\n'),
+    (248442, 249506, '♪ <i>Bang!</i> ♪\n'),
+]
+# sdpylint: enable=line-too-long
 
 
 class BaseTestCase(unittest.TestCase):

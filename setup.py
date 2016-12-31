@@ -45,7 +45,7 @@ setup(name='srtmerge',
       classifiers=[
           'Development Status :: 5 - Production/Stable',
           'Environment :: Console',
-          'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
+          'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',  # noqa: E501 pylint: disable=line-too-long
           'Operating System :: POSIX :: Linux',
           'Programming Language :: Python :: 3',
           'Topic :: Text Processing',

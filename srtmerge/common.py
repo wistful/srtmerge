@@ -27,7 +27,7 @@ def get_delta(record, position):
         return 0.1 + (100 - ms_per_percent * (position - record.start_time))**2
 
 
-def merge(subs1, subs2):
+def merge(subs1, subs2):  # pylint: disable=too-many-locals
     """Generator to merge records from given subtitles."""
     subs1 = sorted(subs1, key=lambda item: item.start_time)
     subs2 = sorted(subs2, key=lambda item: item.start_time)

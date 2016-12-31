@@ -21,7 +21,8 @@ class Srt(BaseWriter):
 
     RECORD_PATTERN = '{index}\n{start_time} --> {end_time}\n{text}\n'
 
-    def ms_to_str(self, ms):
+    @staticmethod
+    def ms_to_str(ms):
         """Convert ms to string representation.
 
         >>> ms2time(233243)

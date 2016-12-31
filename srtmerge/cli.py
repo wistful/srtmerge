@@ -40,12 +40,12 @@ def _check_argv(args):
 
 def detect_encoding(file_path):
     """Return file encoding."""
-    with open(file_path, 'rb') as f:
-        u = UniversalDetector()
-        for line in f:
-            u.feed(line)
-        u.close()
-        return u.result['encoding']
+    with open(file_path, 'rb') as fd:
+        ud = UniversalDetector()
+        for line in fd:
+            ud.feed(line)
+        ud.close()
+        return ud.result['encoding']
 
 
 def merge_subtitles(in_path1, in_path2, out_path, encoding):
