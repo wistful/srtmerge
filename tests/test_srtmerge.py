@@ -1,33 +1,14 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-#    Copyleft 2011 wistful <wst public mail at gmail com>
-#
-#    This is a free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser General Public
-#    License as published by the Free Software Foundation; either
-#    version 2.1 of the License, or (at your option) any later version.
-#
-#    This library is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser General Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser General Public
-#    License along with this library; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-__author__ = 'wistful'
 
 import os
-import sys
-sys.path.append("..")
-
 import tempfile
+
 import unittest
 
-from srtmerge import srt
+from srtmerge import cli
+from srtmerge import reader
 
-DEFAULT_ENCODING = srt.DEFAULT_ENCODING
 
 RES_TIME = [("00:04:03,638 --> 00:04:06,439", (243638, 246439)),
             ("00:04:08,442 --> 00:04:09,506", (248442, 249506)),
@@ -220,65 +201,7 @@ hitherto undreamed of?
 
 """
 
-SUBTITLES_ALL_DIFF = """1
-00:14:14,670 --> 00:14:17,229
-John One, you're a unicorn man.
-Джон №1, ты человек-единорог.
-
-2
-00:14:17,230 --> 00:14:21,229
-John Two, you're a wood fairy.
-Джон №2, ты лесной эльф.
-
-3
-00:14:21,430 --> 00:14:25,429
-And Phil, you're the Gypsy
-assassin, Esmerelda.
-И Фил, ты цыганка-убийца,
-Эсмеральда.
-
-4
-00:14:26,270 --> 00:14:27,709
-I'm a woman?
-Я женщина?
-
-5
-00:14:32,030 --> 00:14:33,549
-I don't think I want to be a woman.
-Не думаю, что хотел бы
-быть женщиной.
-
-6
-00:14:33,550 --> 00:14:34,709
-Just go with it.
-Просто прими это.
-
-7
-00:14:34,710 --> 00:14:36,669
-It will end.
-Это закончится.
-
-8
-00:14:36,670 --> 00:14:40,549
-So, gentlemen, are you prepared
-to open the doors to your mind
-Итак, джентльмены, вы готовы
-открыть двери в свой разум,
-
-9
-00:14:40,550 --> 00:14:43,269
-and travel to worlds
-hitherto undreamed of?
-и перенестись в
-неизведанный мир?
-
-"""
-
 SUBTITLES_STRUCTURE = [(229824, 233243, '♪ Our whole universe\nwas in a hot, dense state ♪\n'), (233244, 236863, '♪ Then nearly 14 billion years\nago expansion started... Wait! ♪\n'), (236864, 238731, '♪ The Earth began to cool ♪\n'), (238732, 241434, '♪ The autotrophs began to drool,\nNeanderthals developed tools ♪\n'), (241435, 243637, '♪ We built the Wall ♪\n♪ <i>We built the pyramids</i> ♪\n'), (243638, 246439, '♪ Math, Science, History,\nunraveling the mystery ♪\n'), (246440, 248441, '♪ That all started\nwith a big bang ♪\n'), (248442, 249506, '♪ <i>Bang!</i> ♪\n')]
-
-if sys.version_info[0] < 3:
-    SUBTITLES_STRUCTURE = [(rec[0], rec[1], rec[2].decode(DEFAULT_ENCODING))
-                           for rec in SUBTITLES_STRUCTURE]
 
 
 class BaseTestCase(unittest.TestCase):
@@ -301,69 +224,31 @@ class BaseTestCase(unittest.TestCase):
         return file_path
 
 
-class SrtText(BaseTestCase):
-
-    def test_parse_time(self):
-        for str_time, times in RES_TIME:
-            self.assertEqual(srt.parse_time(str_time), times)
-        for inv_time in INVALID_TIME:
-            self.assertRaises(srt.SrtFormatError, srt.parse_time, (inv_time,))
-
-    def test_ms2time(self):
-        self.assertEqual(srt.ms2time(233243), '00:03:53,243')
-        self.assertEqual(srt.ms2time(248442), '00:04:08,442')
-        self.assertEqual(srt.ms2time(442), '00:00:00,442')
-
-    def test_parse_ms(self):
-        for str_time, times in RES_TIME:
-            self.assertEqual(srt.parse_ms(*times), str_time)
-
-    def test_subreader(self):
-        file_path = self.get_tmp_path()
-        with open(file_path, 'w') as fd:
-            fd.write(SUBTITLES)
-
-        subs = [(record.start, record.finish, record.text)
-                for record in srt.subreader(file_path)]
-        self.assertEqual(subs, SUBTITLES_STRUCTURE)
-
-    def test_subwriter(self):
-        filepath = self.get_tmp_path()
-        subs = [srt.SubRecord(start, finish, text)
-                for start, finish, text in SUBTITLES_STRUCTURE]
-        srt.subwriter(filepath, subs)
-        with open(filepath) as fd:
-            self.assertEqual(fd.read(), SUBTITLES)
-
-
 class SrtMergeTest(BaseTestCase):
 
     def _get_files(self):
         filepath_eng = self.get_tmp_path()
         filepath_rus = self.get_tmp_path()
         filepath_all = self.get_tmp_path()
+        filepath_gauge = self.get_tmp_path()
         with open(filepath_eng, 'w') as fd:
             fd.write(SUBTITLES_ENG)
         with open(filepath_rus, 'w') as fd:
             fd.write(SUBTITLES_RUS)
+        with open(filepath_gauge, 'w') as fd:
+            fd.write(SUBTITLES_ALL)
 
-        return filepath_eng, filepath_rus, filepath_all
+        return filepath_eng, filepath_rus, filepath_all, filepath_gauge
 
     def test_merge(self):
-        filepath_eng, filepath_rus, filepath_all = self._get_files()
+        path_eng, path_rus, path_all, path_gauge = self._get_files()
 
-        srt.srtmerge([filepath_eng, filepath_rus], filepath_all)
-        with open(filepath_all) as fd:
-            self.assertEqual(fd.read(), SUBTITLES_ALL)
-
-    def test_merge_with_diff(self):
-        filepath_eng, filepath_rus, filepath_all = self._get_files()
-
-        srt.srtmerge([filepath_eng, filepath_rus],
-                     filepath_all, SUBTITLES_OFFSET)
-
-        with open(filepath_all) as fd:
-            self.assertEqual(fd.read(), SUBTITLES_ALL_DIFF)
+        cli.merge_subtitles(path_eng, path_rus, path_all, 'utf-8')
+        for rec1, rec2 in zip(reader.read(path_all), reader.read(path_gauge)):
+            self.assertEqual(rec1.index, rec2.index)
+            self.assertEqual(rec1.text, rec2.text)
+            self.assertAlmostEqual(rec1.start_time, rec2.start_time, delta=200)
+            self.assertAlmostEqual(rec1.end_time, rec2.end_time, delta=200)
 
 
 if __name__ == '__main__':
