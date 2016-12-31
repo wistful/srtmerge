@@ -60,4 +60,5 @@ class Srt(BaseReader):
 
 
 def read(filepath, encoding='utf8'):
-    return Srt(open(filepath, mode='r', encoding=encoding).read())
+    with open(filepath, mode='r', encoding=encoding) as fd:
+        return Srt(fd.read())
