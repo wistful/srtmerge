@@ -3,18 +3,16 @@
 
 """Command-line interface to merge two subtitle files."""
 
+import argparse
 import os
 import sys
 
 from chardet.universaldetector import UniversalDetector
 
+from srtmerge import __version__, __release_date__
 from srtmerge import common
 from srtmerge import reader
 from srtmerge import writer
-
-__author__ = 'wistful'
-__version__ = '1.0'
-__release_date__ = "15/01/2014"
 
 
 def print_version():
@@ -51,13 +49,13 @@ def detect_encoding(file_path):
 
 
 def merge_subtitles(in_path1, in_path2, out_path, encoding):
+    """Merge subtitles from two files into third."""
     subs1 = reader.read(in_path1, detect_encoding(in_path1))
     subs2 = reader.read(in_path2, detect_encoding(in_path2))
     writer.write(out_path, common.merge(subs1, subs2), encoding)
 
 
 def main():
-    import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('inPath', type=str, nargs='+',
                         help='srt-files that should be merged')
@@ -76,7 +74,3 @@ def main():
         merge_subtitles(
             args.get('inPath')[0], args.get('inPath')[1],
             args.get('outPath'), args.get('encoding'))
-
-
-if __name__ == '__main__':
-    main()
