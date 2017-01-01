@@ -5,7 +5,7 @@ PROJECT_DIR := $(dir $(MKFILE_PATH))
 TMP_SRC_DIR=/tmp/src
 WORK_DIR=/mnt/src
 
-PYLINT_PRJ_FLAGS=--persistent=n --good-names=i,j,k,ex,Run,_,fd,ud,ms,ss,mm,hh --extension-pkg-whitelist=re
+PYLINT_PRJ_FLAGS=--persistent=n --good-names=i,j,k,ex,Run,_,fd,ud,ms,ss,mm,hh --extension-pkg-whitelist=re --ignored-modules=re
 PYLINT_TESTS_FLAGS=--disable=missing-docstring,no-member,protected-access,no-self-use,redefined-outer-name,too-many-locals
 
 DOCKER_RUN_CMD=docker run -t -i --rm=true --workdir=$(WORK_DIR) -v $(PROJECT_DIR):$(WORK_DIR):ro python:3
