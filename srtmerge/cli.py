@@ -22,10 +22,12 @@ def print_version(ctx, _, value):
 
 def detect_encoding(file_path):
     """Return file encoding."""
+    ud = UniversalDetector()
     with open(file_path, 'rb') as fd:
-        ud = UniversalDetector()
         for line in fd:
             ud.feed(line)
+            if ud.done:
+                break
         ud.close()
         return ud.result['encoding']
 
