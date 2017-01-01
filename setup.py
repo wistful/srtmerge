@@ -26,7 +26,7 @@ Usage
 srtmerge filepath1 filepath2 out_filepath offset=1000
 """
 
-requires = ['chardet']
+requires = ['chardet', 'click']
 
 setup(name='srtmerge',
       version=__version__,

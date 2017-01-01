@@ -3,11 +3,8 @@
 
 """Command-line interface to merge two subtitle files."""
 
-import argparse
-import os
-import sys
-
 from chardet.universaldetector import UniversalDetector
+import click
 
 from srtmerge import __version__, __release_date__
 from srtmerge import common
@@ -15,27 +12,12 @@ from srtmerge import reader
 from srtmerge import writer
 
 
-def print_version():
+def print_version(ctx, _, value):
     """Print current version to the stdout."""
-    print("srtmerge: version %s (%s)" % (__version__, __release_date__))
-
-
-def print_error(message):
-    """Print error message to the stdout."""
-    print("srtmerge error: {0}".format(message))
-
-
-def _check_argv(args):
-    """Check whether input parameters are correct or not."""
-    paths = args['inPath']
-    if len(paths) < 2:
-        print_error("too few arguments")
-        return False
-    for path in paths:
-        if not os.path.exists(path):
-            print_error("file {srt_file} does not exist".format(srt_file=path))
-            return False
-    return True
+    if not value or ctx.resilient_parsing:
+        return
+    click.echo('Version %s (%s).' % (__version__, __release_date__))
+    ctx.exit()
 
 
 def detect_encoding(file_path):
@@ -55,22 +37,13 @@ def merge_subtitles(in_path1, in_path2, out_path, encoding):
     writer.write(out_path, common.merge(subs1, subs2), encoding)
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('inPath', type=str, nargs='+',
-                        help='srt-files that should be merged')
-    parser.add_argument('outPath', type=str,
-                        help='output file path')
-    parser.add_argument('--encoding', type=str, default='utf-8',
-                        help='encoding for the output file (utf-8)')
-    parser.add_argument('--version', action="store_true",
-                        dest='version', help='print version')
-    if '--version' in sys.argv:
-        print_version()
-        sys.exit(0)
-
-    args = vars(parser.parse_args())
-    if _check_argv(args):
-        merge_subtitles(
-            args.get('inPath')[0], args.get('inPath')[1],
-            args.get('outPath'), args.get('encoding'))
+@click.command()
+@click.option('--version', is_flag=True, callback=print_version,
+              expose_value=False, is_eager=True)
+@click.option('--encoding', default='utf8', type=str)
+@click.argument('inpath1', type=click.Path(exists=True), required=True)
+@click.argument('inpath2', type=click.Path(exists=True), required=True)
+@click.argument('outpath', type=click.Path(writable=True), nargs=1)
+def main(encoding, inpath1, inpath2, outpath):
+    """Entry point for the CLI."""
+    merge_subtitles(inpath1, inpath2, outpath, encoding)
