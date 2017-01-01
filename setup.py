@@ -6,7 +6,8 @@
 import sys
 import os
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
+from setuptools.command.test import test as TestCommand
 from srtmerge import __version__, __author__
 
 if sys.argv[-1] in ('submit', 'publish'):
@@ -26,6 +27,26 @@ Usage
 srtmerge filepath1 filepath2 out_filepath offset=1000
 """
 
+
+# http://doc.pytest.org/en/latest/goodpractices.html#manual-integration
+class PyTest(TestCommand):
+    """Runner for the pytest."""
+
+    user_options = [('pytest-args=', 'a', "Arguments to pass to pytest")]
+
+    def initialize_options(self):
+        super(PyTest, self).initialize_options()
+        # TestCommand.initialize_options(self)
+        self.pytest_args = ''
+
+    def run_tests(self):
+        import shlex
+        # import here, cause outside the eggs aren't loaded
+        import pytest
+        errno = pytest.main(shlex.split(self.pytest_args))
+        sys.exit(errno)
+
+
 requires = ['chardet', 'click']
 
 setup(name='srtmerge',
@@ -42,6 +63,8 @@ setup(name='srtmerge',
       platforms=['Unix,'],
       keywords='srtmerge, srt, subtitle',
       test_suite='tests',
+      tests_require=['pytest'],
+      cmdclass={'test': PyTest},
       classifiers=[
           'Development Status :: 5 - Production/Stable',
           'Environment :: Console',

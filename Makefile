@@ -13,7 +13,7 @@ DOCKER_RUN_CMD=docker run -t -i --rm=true --workdir=$(WORK_DIR) -v $(PROJECT_DIR
 COPY_DIR_CMD=mkdir -p $(TMP_SRC_DIR); tar -c --exclude .git --exclude __pycache__ . | tar -x -C $(TMP_SRC_DIR)
 CLONE_WORKDIR_CMD=$(COPY_DIR_CMD) ; cd $(TMP_SRC_DIR)
 
-TEST_CMD=$(CLONE_WORKDIR_CMD) && python setup.py test
+TEST_CMD=$(CLONE_WORKDIR_CMD) && python setup.py test -a "--durations=3"
 SETUP_CMD=$(CLONE_WORKDIR_CMD) && python setup.py develop
 
 LINT_FLAKE=flake8 . || true
