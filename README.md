@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/wistful/srtmerge.png)](https://travis-ci.org/wistful/srtmerge)
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/wistful/srtmerge/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 ### srtmerge
 
