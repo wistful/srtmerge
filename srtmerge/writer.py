@@ -1,4 +1,5 @@
 """Module contains writers for different type of subtitles."""
+import os
 
 
 class BaseWriter(object):
@@ -13,13 +14,13 @@ class BaseWriter(object):
 
     def __next__(self):
         """Return next subtitle record."""
-        pass
+        raise NotImplementedError()
 
 
 class Srt(BaseWriter):
     """Writer for srt subtitles."""
 
-    RECORD_PATTERN = '{index}\n{start_time} --> {end_time}\n{text}\n'
+    RECORD_PATTERN = '{index}{sep}{start_time} --> {end_time}{sep}{text}'
 
     @staticmethod
     def ms_to_str(ms):
@@ -45,11 +46,13 @@ class Srt(BaseWriter):
             'start_time': self.ms_to_str(rec.start_time),
             'end_time': self.ms_to_str(rec.end_time),
             'text': rec.text,
+            'sep': os.linesep,
         }
         return self.RECORD_PATTERN.format(**params)
 
 
 def write(filepath, records, encoding='utf8'):
     """Write given records into srt-file."""
+    sep = os.linesep * 2
     with open(filepath, mode='w', encoding=encoding) as fd:
-        fd.writelines('\n'.join(Srt(records)))
+        fd.write(sep.join(Srt(records)))
