@@ -55,7 +55,7 @@ class Srt(BaseReader):
             else:
                 text = groups['text']
 
-            yield Record(groups['index'],
+            yield Record(int(groups['index']),
                          start_time, end_time, text.strip('\n '))
 
 
