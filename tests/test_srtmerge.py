@@ -259,7 +259,3 @@ class SrtMergeTest(BaseTestCase):
             self.assertEqual(rec1.text, rec2.text)
             self.assertAlmostEqual(rec1.start_time, rec2.start_time, delta=200)
             self.assertAlmostEqual(rec1.end_time, rec2.end_time, delta=200)
-
-
-if __name__ == '__main__':
-    unittest.main()
