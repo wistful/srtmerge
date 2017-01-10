@@ -64,7 +64,7 @@ setup(name='srtmerge',
       platforms=['Unix,'],
       keywords='srtmerge, srt, subtitle',
       test_suite='tests',
-      tests_require=['pytest', 'pytest-cov'],
+      tests_require=['pytest', 'pytest-cov', 'mock'],
       cmdclass={'test': PyTest},
       extras_require={
           'lint': [
